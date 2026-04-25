@@ -37,7 +37,6 @@ const emptyForm: Omit<Bike, "id" | "createdAt"> = {
   location: "",
   description: "",
   images: [],
-  phone: "",
   featured: false,
   sold: false,
 };
