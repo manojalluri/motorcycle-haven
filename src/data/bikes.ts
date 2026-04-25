@@ -20,7 +20,8 @@ export interface Bike {
   location: string;
   description: string;
   images: string[];
-  phone: string;
+  /** @deprecated Quick Bikes is the seller — central store contact is used instead. */
+  phone?: string;
   featured: boolean;
   sold: boolean;
   createdAt: number;

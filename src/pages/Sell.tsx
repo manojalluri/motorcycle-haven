@@ -1,210 +1,285 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { useBikeStore } from "@/store/bikeStore";
 import { BRANDS, FUEL_TYPES, FuelType } from "@/data/bikes";
+import { STORE, buildSellMessage, whatsappLink } from "@/data/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload, X, CheckCircle2 } from "lucide-react";
+import { Upload, X, CheckCircle2, ShieldCheck, IndianRupee, Clock, MessageCircle } from "lucide-react";
 
 const schema = z.object({
-  name: z.string().trim().min(3).max(100),
+  ownerName: z.string().trim().min(2).max(80),
+  phone: z.string().regex(/^\d{10,15}$/, "Enter digits only with country code (e.g. 919999999999)"),
   brand: z.string().min(1),
   model: z.string().trim().min(1).max(80),
-  price: z.number().positive().max(10000000),
   year: z.number().int().min(1980).max(new Date().getFullYear() + 1),
   kmDriven: z.number().int().min(0).max(500000),
   fuel: z.enum(["Petrol", "Electric", "Diesel"]),
   ownership: z.string().min(1),
+  expectedPrice: z.number().positive().max(10000000),
   location: z.string().trim().min(2).max(80),
-  description: z.string().trim().min(10).max(1000),
-  phone: z.string().regex(/^\d{10,15}$/, "Enter digits only, with country code (e.g. 919999999999)"),
+  notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
 const Sell = () => {
-  const navigate = useNavigate();
-  const addBike = useBikeStore((s) => s.addBike);
   const [images, setImages] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
   const handleImages = (files: FileList | null) => {
     if (!files) return;
-    const arr = Array.from(files).slice(0, 6 - images.length);
-    arr.forEach((f) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) setImages((p) => [...p, e.target!.result as string]);
-      };
-      reader.readAsDataURL(f);
-    });
+    Array.from(files)
+      .slice(0, 6 - images.length)
+      .forEach((f) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) setImages((p) => [...p, e.target!.result as string]);
+        };
+        reader.readAsDataURL(f);
+      });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const raw = {
-      name: String(fd.get("name") || ""),
+      ownerName: String(fd.get("ownerName") || ""),
+      phone: String(fd.get("phone") || "").replace(/\D/g, ""),
       brand: String(fd.get("brand") || ""),
       model: String(fd.get("model") || ""),
-      price: Number(fd.get("price")),
       year: Number(fd.get("year")),
       kmDriven: Number(fd.get("kmDriven")),
       fuel: String(fd.get("fuel")) as FuelType,
       ownership: String(fd.get("ownership") || ""),
+      expectedPrice: Number(fd.get("expectedPrice")),
       location: String(fd.get("location") || ""),
-      description: String(fd.get("description") || ""),
-      phone: String(fd.get("phone") || "").replace(/\D/g, ""),
+      notes: String(fd.get("notes") || ""),
     };
 
     const result = schema.safeParse(raw);
     if (!result.success) {
-      const first = result.error.issues[0];
-      toast.error(first?.message || "Please fill all fields correctly");
-      return;
-    }
-    if (images.length === 0) {
-      toast.error("Please upload at least one image");
+      toast.error(result.error.issues[0]?.message || "Please fill all fields correctly");
       return;
     }
 
-    addBike({
-      ...(result.data as Required<typeof result.data>),
-      images,
-      featured: false,
-      sold: false,
-    });
+    // Frontend-only demo: persist quote requests in localStorage so admins can review later.
+    try {
+      const existing = JSON.parse(localStorage.getItem("quickbikes-quotes") || "[]");
+      existing.unshift({ ...result.data, images, createdAt: Date.now() });
+      localStorage.setItem("quickbikes-quotes", JSON.stringify(existing));
+    } catch {
+      /* ignore storage errors */
+    }
 
     setSubmitted(true);
-    toast.success("Listing submitted successfully!");
-    setTimeout(() => navigate("/bikes"), 1800);
+    toast.success("Request received! Our team will call you shortly.");
   };
 
   if (submitted) {
     return (
-      <div className="container-px mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
+      <div className="container-px mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center text-center">
         <CheckCircle2 className="h-16 w-16 text-primary" />
-        <h1 className="mt-6 text-3xl font-extrabold">Listing submitted!</h1>
-        <p className="mt-2 text-muted-foreground">Redirecting you to all bikes…</p>
+        <h1 className="mt-6 text-3xl font-extrabold">Quote request sent!</h1>
+        <p className="mt-2 text-muted-foreground">
+          Our team will contact you within 24 hours to schedule a free inspection at your location.
+        </p>
+        <Button
+          asChild
+          size="lg"
+          className="mt-6 bg-[hsl(142,70%,45%)] text-white hover:bg-[hsl(142,70%,40%)] shadow-elegant"
+        >
+          <a href={whatsappLink(buildSellMessage())} target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="mr-2 h-5 w-5" /> Chat with us on WhatsApp
+          </a>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="container-px mx-auto max-w-3xl py-10 md:py-14">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-          Sell Your Bike
+    <div className="container-px mx-auto max-w-6xl py-10 md:py-14">
+      <div className="mb-8 max-w-2xl">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          We buy your bike directly
+        </span>
+        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">
+          Sell Your Bike to Quick Bikes
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Fill in the details below. Buyers will contact you directly via WhatsApp.
+          Get an instant quote from our team. We inspect, value and pay on the spot —
+          no buyer hunting, no haggling, no paperwork hassles.
         </p>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-card md:p-8"
-      >
-        {/* IMAGES */}
-        <div>
-          <Label>Bike Images <span className="text-muted-foreground font-normal">(up to 6)</span></Label>
-          <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {images.map((img, i) => (
-              <div key={i} className="relative aspect-square overflow-hidden rounded-lg border border-border">
-                <img src={img} alt={`upload ${i + 1}`} className="h-full w-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setImages((p) => p.filter((_, idx) => idx !== i))}
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/90 shadow-sm hover:bg-background"
-                  aria-label="Remove image"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-            {images.length < 6 && (
-              <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-xs text-muted-foreground transition-smooth hover:border-primary hover:bg-secondary/40">
-                <Upload className="h-5 w-5" />
-                <span>Upload</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={(e) => handleImages(e.target.files)}
-                />
-              </label>
-            )}
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Bike Name" name="name" placeholder="e.g. Royal Enfield Classic 350" required />
-          <div>
-            <Label>Brand</Label>
-            <Select name="brand" required>
-              <SelectTrigger className="mt-2"><SelectValue placeholder="Select brand" /></SelectTrigger>
-              <SelectContent>
-                {BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <Field label="Model" name="model" placeholder="e.g. Classic 350" required />
-          <Field label="Price (₹)" name="price" type="number" placeholder="180000" required />
-          <Field label="Year" name="year" type="number" placeholder="2022" required />
-          <Field label="KM Driven" name="kmDriven" type="number" placeholder="8500" required />
-          <div>
-            <Label>Fuel Type</Label>
-            <Select name="fuel" defaultValue="Petrol" required>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {FUEL_TYPES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label>Ownership</Label>
-            <Select name="ownership" defaultValue="1st Owner" required>
-              <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {["1st Owner", "2nd Owner", "3rd Owner", "4th Owner+"].map((o) => (
-                  <SelectItem key={o} value={o}>{o}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <Field label="Location" name="location" placeholder="e.g. Mumbai, MH" required />
-          <Field
-            label="WhatsApp (with country code)"
-            name="phone"
-            placeholder="919999999999"
-            required
-            hint="Digits only, no + or spaces"
-          />
-        </div>
-
-        <div>
-          <Label>Description</Label>
-          <Textarea
-            name="description"
-            placeholder="Condition, features, service history…"
-            rows={5}
-            className="mt-2"
-            required
-          />
-        </div>
-
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
+      <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-card md:p-8"
         >
-          Submit Listing
-        </Button>
-      </form>
+          <h2 className="text-lg font-bold">Tell us about your bike</h2>
+
+          {/* IMAGES */}
+          <div>
+            <Label>Bike Photos <span className="font-normal text-muted-foreground">(optional, up to 6)</span></Label>
+            <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-4">
+              {images.map((img, i) => (
+                <div key={i} className="relative aspect-square overflow-hidden rounded-lg border border-border">
+                  <img src={img} alt={`upload ${i + 1}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImages((p) => p.filter((_, idx) => idx !== i))}
+                    className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-background/90 hover:bg-background"
+                    aria-label="Remove image"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {images.length < 6 && (
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-xs text-muted-foreground transition-smooth hover:border-primary hover:bg-secondary/40">
+                  <Upload className="h-5 w-5" />
+                  <span>Upload</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleImages(e.target.files)}
+                  />
+                </label>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Your Name" name="ownerName" placeholder="e.g. Rahul Sharma" required />
+            <Field
+              label="WhatsApp / Phone"
+              name="phone"
+              placeholder="919999999999"
+              required
+              hint="Digits only, with country code"
+            />
+            <div>
+              <Label>Brand</Label>
+              <Select name="brand" required>
+                <SelectTrigger className="mt-2"><SelectValue placeholder="Select brand" /></SelectTrigger>
+                <SelectContent>
+                  {BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <Field label="Model" name="model" placeholder="e.g. Classic 350" required />
+            <Field label="Year" name="year" type="number" placeholder="2022" required />
+            <Field label="KM Driven" name="kmDriven" type="number" placeholder="8500" required />
+            <div>
+              <Label>Fuel Type</Label>
+              <Select name="fuel" defaultValue="Petrol" required>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {FUEL_TYPES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Ownership</Label>
+              <Select name="ownership" defaultValue="1st Owner" required>
+                <SelectTrigger className="mt-2"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["1st Owner", "2nd Owner", "3rd Owner", "4th Owner+"].map((o) => (
+                    <SelectItem key={o} value={o}>{o}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Field label="Expected Price (₹)" name="expectedPrice" type="number" placeholder="180000" required />
+            <Field label="Your Location" name="location" placeholder="e.g. Mumbai, MH" required />
+          </div>
+
+          <div>
+            <Label>Additional Notes</Label>
+            <Textarea
+              name="notes"
+              placeholder="Service history, modifications, condition…"
+              rows={4}
+              className="mt-2"
+            />
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              type="submit"
+              size="lg"
+              className="flex-1 gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
+            >
+              Get My Quote
+            </Button>
+            <Button
+              asChild
+              type="button"
+              size="lg"
+              variant="outline"
+              className="flex-1"
+            >
+              <a href={whatsappLink(buildSellMessage())} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp Us
+              </a>
+            </Button>
+          </div>
+        </form>
+
+        {/* HOW IT WORKS */}
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              How it works
+            </h3>
+            <ol className="mt-4 space-y-4 text-sm">
+              {[
+                { t: "Submit details", d: "Fill the form or WhatsApp us your bike info." },
+                { t: "Free inspection", d: "Our expert visits you and inspects the bike." },
+                { t: "Instant quote", d: "Get a fair, transparent offer on the spot." },
+                { t: "Sell & get paid", d: "Accept the offer, hand over keys, get paid instantly." },
+              ].map((s, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full gradient-primary text-xs font-bold text-primary-foreground">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="font-semibold">{s.t}</p>
+                    <p className="text-muted-foreground">{s.d}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="rounded-2xl gradient-dark p-6 text-accent-foreground shadow-elegant">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-accent-foreground/60">
+              Why Quick Bikes
+            </h3>
+            <ul className="mt-4 space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <IndianRupee className="mt-0.5 h-4 w-4 text-primary" />
+                <span>Best market price, paid instantly</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Clock className="mt-0.5 h-4 w-4 text-primary" />
+                <span>Sale completed in under 24 hours</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
+                <span>Zero paperwork — we handle RC transfer</span>
+              </li>
+            </ul>
+            <p className="mt-5 text-xs text-accent-foreground/60">
+              {STORE.hours} · {STORE.email}
+            </p>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 };

@@ -37,7 +37,6 @@ const emptyForm: Omit<Bike, "id" | "createdAt"> = {
   location: "",
   description: "",
   images: [],
-  phone: "",
   featured: false,
   sold: false,
 };
@@ -91,7 +90,7 @@ const AdminDashboard = () => {
   };
 
   const save = () => {
-    if (!form.name || !form.price || !form.phone || form.images.length === 0) {
+    if (!form.name || !form.price || form.images.length === 0) {
       toast.error("Fill required fields and add at least one image");
       return;
     }
@@ -182,7 +181,6 @@ const AdminDashboard = () => {
                     onChange={(v) => setForm({ ...form, ownership: v })}
                   />
                   <FormInput label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-                  <FormInput label="WhatsApp Phone *" value={form.phone} onChange={(v) => setForm({ ...form, phone: v.replace(/\D/g, "") })} />
                 </div>
 
                 <div>

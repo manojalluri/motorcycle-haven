@@ -28,14 +28,14 @@ const Home = () => {
           <div className="max-w-2xl animate-fade-in-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              India's premium pre-owned bike marketplace
+              Inspected · Certified · Sold by Quick Bikes
             </span>
             <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
               Find Your <span className="text-gradient">Dream Bike</span> Today
             </h1>
             <p className="mt-5 max-w-xl text-base text-white/75 md:text-lg">
-              Browse hundreds of verified motorcycles from trusted sellers across India.
-              Buy, sell, ride — all in one place.
+              Hand-picked, fully inspected pre-owned motorcycles bought and sold by Quick Bikes.
+              Buy with confidence, or sell your bike to us in 24 hours.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -61,15 +61,15 @@ const Home = () => {
             <div className="mt-12 flex flex-wrap gap-8 text-sm text-white/70">
               <div>
                 <p className="text-2xl font-bold text-white">500+</p>
-                <p>Bikes listed</p>
+                <p>Bikes sold</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">50+</p>
-                <p>Cities covered</p>
+                <p className="text-2xl font-bold text-white">100%</p>
+                <p>Inspected & certified</p>
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">10k+</p>
-                <p>Happy riders</p>
+                <p className="text-2xl font-bold text-white">24h</p>
+                <p>Quote turnaround</p>
               </div>
             </div>
           </div>
@@ -80,10 +80,10 @@ const Home = () => {
       <section className="container-px mx-auto max-w-7xl py-16 md:py-24">
         <div className="grid gap-6 md:grid-cols-4">
           {[
-            { icon: Shield, title: "Verified Sellers", desc: "Every listing checked for authenticity" },
-            { icon: Zap, title: "Instant Contact", desc: "One-click WhatsApp to connect" },
-            { icon: Sparkles, title: "Premium Bikes", desc: "Hand-picked, well-maintained motorcycles" },
-            { icon: Headphones, title: "24/7 Support", desc: "We're here whenever you need us" },
+            { icon: Shield, title: "Inspected & Certified", desc: "Every bike goes through a 50-point quality check" },
+            { icon: Zap, title: "Instant WhatsApp Buy", desc: "One-click contact with our showroom team" },
+            { icon: Sparkles, title: "Hand-Picked Stock", desc: "We only buy and resell premium-condition bikes" },
+            { icon: Headphones, title: "Service & Support", desc: "Post-sale assistance and RC transfer included" },
           ].map((f, i) => (
             <div
               key={i}
@@ -132,11 +132,11 @@ const Home = () => {
           <div className="relative z-10 grid gap-8 md:grid-cols-2 md:items-center">
             <div>
               <h2 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-                Got a bike to sell?
+                Want to sell your bike?
               </h2>
               <p className="mt-3 text-accent-foreground/70">
-                List your motorcycle in minutes and reach thousands of serious buyers.
-                Zero commission, instant WhatsApp leads.
+                Skip the buyer hunt. We buy directly from you — fair price, free inspection,
+                instant payment, and zero paperwork stress.
               </p>
             </div>
             <div className="flex md:justify-end">
@@ -146,7 +146,7 @@ const Home = () => {
                 className="gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
               >
                 <Link to="/sell">
-                  List Your Bike <ArrowRight className="ml-1 h-4 w-4" />
+                  Get a Quote <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
             </div>

@@ -15,8 +15,8 @@ export const Footer = () => (
             </span>
           </Link>
           <p className="mt-4 max-w-md text-sm text-accent-foreground/70">
-            India's premium destination for buying and selling pre-owned motorcycles.
-            Verified sellers, transparent pricing, dream rides.
+            Quick Bikes buys, inspects and resells premium pre-owned motorcycles across India.
+            Every bike is certified — every sale is guaranteed.
           </p>
           <div className="mt-6 flex gap-3">
             {[Instagram, Facebook, Twitter].map((Icon, i) => (
@@ -36,7 +36,7 @@ export const Footer = () => (
           <h4 className="mb-4 text-sm font-semibold">Explore</h4>
           <ul className="space-y-2 text-sm text-accent-foreground/70">
             <li><Link to="/bikes" className="hover:text-primary">Browse Bikes</Link></li>
-            <li><Link to="/sell" className="hover:text-primary">Sell Your Bike</Link></li>
+            <li><Link to="/sell" className="hover:text-primary">Sell to Quick Bikes</Link></li>
             <li><Link to="/admin" className="hover:text-primary">Admin Login</Link></li>
           </ul>
         </div>

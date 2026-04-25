@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/", label: "Home" },
   { to: "/bikes", label: "Browse Bikes" },
-  { to: "/sell", label: "Sell Your Bike" },
+  { to: "/sell", label: "Sell to Us" },
 ];
 
 export const Navbar = () => {
@@ -46,7 +46,7 @@ export const Navbar = () => {
             <Link to="/admin">Admin</Link>
           </Button>
           <Button asChild size="sm" className="gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
-            <Link to="/sell">Sell Now</Link>
+            <Link to="/sell">Get a Quote</Link>
           </Button>
         </div>
 
