@@ -270,11 +270,6 @@ const AdminDashboard = () => {
                       )}
                     </div>
                   </TableCell>
-                      {b.featured && (
-                        <Badge className="gradient-primary text-primary-foreground border-0">★</Badge>
-                      )}
-                    </div>
-                  </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1">
                       <Button
