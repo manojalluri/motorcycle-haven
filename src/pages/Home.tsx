@@ -28,14 +28,14 @@ const Home = () => {
           <div className="max-w-2xl animate-fade-in-up">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-medium backdrop-blur-md">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              India's premium pre-owned bike marketplace
+              Inspected · Certified · Sold by Quick Bikes
             </span>
             <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.05] tracking-tight md:text-7xl">
               Find Your <span className="text-gradient">Dream Bike</span> Today
             </h1>
             <p className="mt-5 max-w-xl text-base text-white/75 md:text-lg">
-              Browse hundreds of verified motorcycles from trusted sellers across India.
-              Buy, sell, ride — all in one place.
+              Hand-picked, fully inspected pre-owned motorcycles bought and sold by Quick Bikes.
+              Buy with confidence, or sell your bike to us in 24 hours.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
