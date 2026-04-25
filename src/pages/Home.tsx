@@ -132,11 +132,11 @@ const Home = () => {
           <div className="relative z-10 grid gap-8 md:grid-cols-2 md:items-center">
             <div>
               <h2 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-                Got a bike to sell?
+                Want to sell your bike?
               </h2>
               <p className="mt-3 text-accent-foreground/70">
-                List your motorcycle in minutes and reach thousands of serious buyers.
-                Zero commission, instant WhatsApp leads.
+                Skip the buyer hunt. We buy directly from you — fair price, free inspection,
+                instant payment, and zero paperwork stress.
               </p>
             </div>
             <div className="flex md:justify-end">
@@ -146,7 +146,7 @@ const Home = () => {
                 className="gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
               >
                 <Link to="/sell">
-                  List Your Bike <ArrowRight className="ml-1 h-4 w-4" />
+                  Get a Quote <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
             </div>
