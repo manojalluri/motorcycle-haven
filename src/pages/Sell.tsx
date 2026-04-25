@@ -72,7 +72,7 @@ const Sell = () => {
     }
 
     addBike({
-      ...result.data,
+      ...(result.data as Required<typeof result.data>),
       images,
       featured: false,
       sold: false,
