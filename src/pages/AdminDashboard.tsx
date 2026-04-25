@@ -181,7 +181,6 @@ const AdminDashboard = () => {
                     onChange={(v) => setForm({ ...form, ownership: v })}
                   />
                   <FormInput label="Location" value={form.location} onChange={(v) => setForm({ ...form, location: v })} />
-                  <FormInput label="WhatsApp Phone *" value={form.phone} onChange={(v) => setForm({ ...form, phone: v.replace(/\D/g, "") })} />
                 </div>
 
                 <div>
