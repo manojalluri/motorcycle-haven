@@ -105,8 +105,11 @@ const BikeDetails = () => {
           <h1 className="font-display text-3xl font-extrabold tracking-tight md:text-4xl">
             {bike.name}
           </h1>
-          <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" /> {bike.location}
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {bike.location}</span>
+            <span className="inline-flex items-center gap-1 text-primary">
+              <BadgeCheck className="h-4 w-4" /> Inspected & Certified by Quick Bikes
+            </span>
           </p>
 
           <p className="mt-5 text-4xl font-extrabold text-primary md:text-5xl">
@@ -121,9 +124,27 @@ const BikeDetails = () => {
           >
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
               <WhatsAppIcon className="mr-2 h-5 w-5" />
-              {bike.sold ? "Sold" : "Contact on WhatsApp"}
+              {bike.sold ? "Sold" : "Buy via WhatsApp"}
             </a>
           </Button>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Sold and serviced by Quick Bikes · {STORE.hours}
+          </p>
+
+          <div className="mt-6 grid grid-cols-3 gap-2 rounded-xl border border-border bg-secondary/40 p-3 text-center text-[11px]">
+            <div className="flex flex-col items-center gap-1">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <span className="font-medium">Quality Checked</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <BadgeCheck className="h-4 w-4 text-primary" />
+              <span className="font-medium">Verified Papers</span>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <Tag className="h-4 w-4 text-primary" />
+              <span className="font-medium">Fair Pricing</span>
+            </div>
+          </div>
 
           <div className="mt-8 rounded-2xl border border-border bg-card p-5 shadow-card">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
