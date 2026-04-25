@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Bike, formatPrice, formatKm } from "@/store/bikeStore";
+import { formatPrice, formatKm } from "@/store/bikeStore";
+import type { Bike } from "@/data/bikes";
 import { MapPin, Calendar, Fuel, Gauge } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
