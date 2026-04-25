@@ -3,8 +3,10 @@ import { useState } from "react";
 import { useBikeStore, formatPrice, formatKm } from "@/store/bikeStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { STORE, buildBuyMessage, whatsappLink } from "@/data/store";
 import {
   Calendar, MapPin, Fuel, Gauge, User, Tag, ChevronLeft, ChevronRight, ArrowLeft,
+  ShieldCheck, BadgeCheck,
 } from "lucide-react";
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -23,10 +25,7 @@ const BikeDetails = () => {
   const next = () => setImgIdx((i) => (i + 1) % bike.images.length);
   const prev = () => setImgIdx((i) => (i - 1 + bike.images.length) % bike.images.length);
 
-  const message = encodeURIComponent(
-    `Hi, I'm interested in your bike ${bike.name}. Please share more details.`
-  );
-  const whatsappUrl = `https://wa.me/${bike.phone}?text=${message}`;
+  const whatsappUrl = whatsappLink(buildBuyMessage(bike.name));
 
   const specs = [
     { label: "Brand", value: bike.brand, icon: Tag },
