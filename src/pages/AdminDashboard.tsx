@@ -263,8 +263,13 @@ const AdminDashboard = () => {
                       {b.sold ? (
                         <Badge variant="secondary">Sold</Badge>
                       ) : (
-                        <Badge className="bg-emerald-500 text-white hover:bg-emerald-500">Active</Badge>
+                        <Badge variant="outline" className="border-primary/40 text-primary">Active</Badge>
                       )}
+                      {b.featured && (
+                        <Badge className="gradient-primary text-primary-foreground border-0">★</Badge>
+                      )}
+                    </div>
+                  </TableCell>
                       {b.featured && (
                         <Badge className="gradient-primary text-primary-foreground border-0">★</Badge>
                       )}
