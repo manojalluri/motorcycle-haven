@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   };
 
   const save = () => {
-    if (!form.name || !form.price || !form.phone || form.images.length === 0) {
+    if (!form.name || !form.price || form.images.length === 0) {
       toast.error("Fill required fields and add at least one image");
       return;
     }
