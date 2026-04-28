@@ -20,7 +20,7 @@ export interface Bike {
   location: string;
   description: string;
   images: string[];
-  /** @deprecated Quick Bikes is the seller — central store contact is used instead. */
+  /** @deprecated Sree Sai Vijaya Durga is the seller — central store contact is used instead. */
   phone?: string;
   featured: boolean;
   sold: boolean;

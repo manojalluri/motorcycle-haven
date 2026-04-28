@@ -66,15 +66,20 @@ const Sell = () => {
 
     // Frontend-only demo: persist quote requests in localStorage so admins can review later.
     try {
-      const existing = JSON.parse(localStorage.getItem("quickbikes-quotes") || "[]");
+      const existing = JSON.parse(localStorage.getItem("sreesaivijayadurga-quotes") || "[]");
       existing.unshift({ ...result.data, images, createdAt: Date.now() });
-      localStorage.setItem("quickbikes-quotes", JSON.stringify(existing));
+      localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(existing));
     } catch {
       /* ignore storage errors */
     }
 
+    const detailedMessage = `Hi Sree Sai Vijaya Durga Auto Finance, I want to sell my bike. \nHere are the details:\nName: ${result.data.ownerName}\nPhone: ${result.data.phone}\nBrand: ${result.data.brand}\nModel: ${result.data.model}\nYear: ${result.data.year}\nKM Driven: ${result.data.kmDriven}\nFuel: ${result.data.fuel}\nOwnership: ${result.data.ownership}\nExpected Price: ₹${result.data.expectedPrice}\nLocation: ${result.data.location}\nNotes: ${result.data.notes || "None"}`;
+    
+    // Open whatsapp immediately
+    window.open(whatsappLink(detailedMessage), "_blank");
+
     setSubmitted(true);
-    toast.success("Request received! Our team will call you shortly.");
+    toast.success("Redirecting you to WhatsApp...");
   };
 
   if (submitted) {
@@ -105,7 +110,7 @@ const Sell = () => {
           We buy your bike directly
         </span>
         <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight md:text-4xl">
-          Sell Your Bike to Quick Bikes
+          Sell Your Bike to Sree Sai Vijaya Durga Auto Finance
         </h1>
         <p className="mt-2 text-muted-foreground">
           Get an instant quote from our team. We inspect, value and pay on the spot —
@@ -162,15 +167,7 @@ const Sell = () => {
               required
               hint="Digits only, with country code"
             />
-            <div>
-              <Label>Brand</Label>
-              <Select name="brand" required>
-                <SelectTrigger className="mt-2"><SelectValue placeholder="Select brand" /></SelectTrigger>
-                <SelectContent>
-                  {BRANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            <Field label="Brand" name="brand" placeholder="e.g. Royal Enfield, Bajaj..." required />
             <Field label="Model" name="model" placeholder="e.g. Classic 350" required />
             <Field label="Year" name="year" type="number" placeholder="2022" required />
             <Field label="KM Driven" name="kmDriven" type="number" placeholder="8500" required />
@@ -208,24 +205,14 @@ const Sell = () => {
             />
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col mt-4">
             <Button
               type="submit"
               size="lg"
-              className="flex-1 gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
+              className="w-full gradient-primary text-primary-foreground shadow-elegant hover:opacity-90 flex items-center justify-center gap-2"
             >
-              Get My Quote
-            </Button>
-            <Button
-              asChild
-              type="button"
-              size="lg"
-              variant="outline"
-              className="flex-1"
-            >
-              <a href={whatsappLink(buildSellMessage())} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp Us
-              </a>
+              <MessageCircle className="h-5 w-5" />
+              Send quotations to WhatsApp
             </Button>
           </div>
         </form>
@@ -258,7 +245,7 @@ const Sell = () => {
 
           <div className="rounded-2xl gradient-dark p-6 text-accent-foreground shadow-elegant">
             <h3 className="text-sm font-bold uppercase tracking-widest text-accent-foreground/60">
-              Why Quick Bikes
+              Why Sree Sai Vijaya Durga
             </h3>
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-start gap-2">

@@ -108,7 +108,7 @@ const BikeDetails = () => {
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {bike.location}</span>
             <span className="inline-flex items-center gap-1 text-primary">
-              <BadgeCheck className="h-4 w-4" /> Inspected & Certified by Quick Bikes
+              <BadgeCheck className="h-4 w-4" /> Inspected & Certified by Sree Sai Vijaya Durga Auto Finance
             </span>
           </p>
 
@@ -128,7 +128,7 @@ const BikeDetails = () => {
             </a>
           </Button>
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Sold and serviced by Quick Bikes · {STORE.hours}
+            Sold and serviced by Sree Sai Vijaya Durga Auto Finance · {STORE.hours}
           </p>
 
           <div className="mt-6 grid grid-cols-3 gap-2 rounded-xl border border-border bg-secondary/40 p-3 text-center text-[11px]">

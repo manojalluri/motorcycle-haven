@@ -45,7 +45,7 @@ const AdminLogin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@quickbikes.com"
+              placeholder="admin@sreesaivijayadurga.com"
               className="mt-2"
               required
             />
@@ -69,7 +69,7 @@ const AdminLogin = () => {
 
         <div className="mt-6 rounded-lg border border-dashed border-border bg-secondary/40 p-3 text-xs text-muted-foreground">
           <p className="font-semibold text-foreground">Demo credentials</p>
-          <p>Email: <code>admin@quickbikes.com</code></p>
+          <p>Email: <code>admin@sreesaivijayadurga.com</code></p>
           <p>Password: <code>admin123</code></p>
         </div>
       </div>

@@ -14,8 +14,8 @@ interface BikeStore {
   logout: () => void;
 }
 
-// Demo credentials (frontend-only): admin@quickbikes.com / admin123
-const DEMO_EMAIL = "admin@quickbikes.com";
+// Demo credentials (frontend-only): admin@sreesaivijayadurga.com / admin123
+const DEMO_EMAIL = "admin@sreesaivijayadurga.com";
 const DEMO_PASS = "admin123";
 
 export const useBikeStore = create<BikeStore>()(
@@ -56,7 +56,7 @@ export const useBikeStore = create<BikeStore>()(
       logout: () => set({ isAdmin: false }),
     }),
     {
-      name: "quickbikes-store",
+      name: "sreesaivijayadurga-store",
       partialize: (s) => ({ bikes: s.bikes, isAdmin: s.isAdmin }),
     }
   )

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X, Bike as BikeIcon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -18,12 +18,19 @@ export const Navbar = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/85 backdrop-blur-xl">
       <div className="container-px mx-auto flex h-16 max-w-7xl items-center justify-between">
         <Link to="/" className="flex items-center gap-2 font-display">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg gradient-primary shadow-elegant">
-            <BikeIcon className="h-5 w-5 text-primary-foreground" />
-          </span>
-          <span className="text-xl font-extrabold tracking-tight">
-            Quick<span className="text-primary">Bikes</span>
-          </span>
+          <img
+            src="/logo.png"
+            alt="Sree Sai Vijaya Durga Auto Finance Logo"
+            className="h-12 w-12 shrink-0 rounded-lg object-contain shadow-elegant"
+          />
+          <div className="flex flex-col">
+            <span className="text-sm sm:text-lg font-extrabold tracking-tight leading-none truncate max-w-[190px] sm:max-w-none">
+              SREE SAI VIJAYA DURGA
+            </span>
+            <span className="text-[10px] sm:text-sm font-bold text-primary mt-0.5 truncate max-w-[190px] sm:max-w-none">
+              AUTO FINANCE BHIMAVARAM
+            </span>
+          </div>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -42,9 +49,7 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <Button asChild variant="outline" size="sm">
-            <Link to="/admin">Admin</Link>
-          </Button>
+
           <Button asChild size="sm" className="gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
             <Link to="/sell">Get a Quote</Link>
           </Button>
@@ -75,13 +80,7 @@ export const Navbar = () => {
                 {l.label}
               </Link>
             ))}
-            <Link
-              to="/admin"
-              onClick={() => setOpen(false)}
-              className="rounded-md px-3 py-3 text-sm font-medium text-foreground/80"
-            >
-              Admin
-            </Link>
+
           </nav>
         </div>
       )}
