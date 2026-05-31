@@ -91,17 +91,37 @@ const AdminDashboard = () => {
     setOpenForm(true);
   };
 
-  const handleImages = (files: FileList | null) => {
+  const handleImages = async (files: FileList | null) => {
     if (!files) return;
-    Array.from(files)
-      .slice(0, 6 - form.images.length)
-      .forEach((f) => {
-        const r = new FileReader();
-        r.onload = (e) =>
-          e.target?.result &&
-          setForm((p) => ({ ...p, images: [...p.images, e.target!.result as string] }));
-        r.readAsDataURL(f);
+    const newImages: string[] = [];
+    
+    for (const file of Array.from(files).slice(0, 6 - form.images.length)) {
+      const resized = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target?.result as string;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let { width, height } = img;
+            if (width > 1200 || height > 1200) {
+              const ratio = Math.min(1200 / width, 1200 / height);
+              width *= ratio;
+              height *= ratio;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.7));
+          };
+        };
       });
+      newImages.push(resized);
+    }
+    
+    setForm((p) => ({ ...p, images: [...p.images, ...newImages] }));
   };
 
   const save = () => {

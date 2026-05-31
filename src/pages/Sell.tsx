@@ -26,21 +26,47 @@ const schema = z.object({
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
+const Field = ({ label, ...props }: any) => (
+  <div>
+    <Label>{label}</Label>
+    <Input {...props} className="mt-2" />
+  </div>
+);
+
 const Sell = () => {
   const [images, setImages] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleImages = (files: FileList | null) => {
-    if (!files) return;
-    Array.from(files)
-      .slice(0, 6 - images.length)
-      .forEach((f) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) setImages((p) => [...p, e.target!.result as string]);
-        };
-        reader.readAsDataURL(f);
-      });
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newImages: string[] = [];
+      for (const file of Array.from(e.target.files).slice(0, 6 - images.length)) {
+        const resized = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (e) => {
+            const img = new Image();
+            img.src = e.target?.result as string;
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              let { width, height } = img;
+              if (width > 1000 || height > 1000) {
+                const ratio = Math.min(1000 / width, 1000 / height);
+                width *= ratio;
+                height *= ratio;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext("2d");
+              ctx?.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL("image/jpeg", 0.7));
+            };
+          };
+        });
+        newImages.push(resized);
+      }
+      setImages((prev) => [...prev, ...newImages]);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
