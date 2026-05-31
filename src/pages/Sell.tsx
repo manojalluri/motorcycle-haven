@@ -26,12 +26,7 @@ const schema = z.object({
   notes: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
-const Field = ({ label, ...props }: any) => (
-  <div>
-    <Label>{label}</Label>
-    <Input {...props} className="mt-2" />
-  </div>
-);
+
 
 const Sell = () => {
   const [images, setImages] = useState<string[]>([]);
