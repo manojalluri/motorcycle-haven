@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 import { BRANDS, FUEL_TYPES, FuelType } from "@/data/bikes";
 import { STORE, buildSellMessage, whatsappLink } from "@/data/store";
@@ -12,7 +13,7 @@ import { Upload, X, CheckCircle2, ShieldCheck, IndianRupee, Clock, MessageCircle
 
 const schema = z.object({
   ownerName: z.string().trim().min(2).max(80),
-  phone: z.string().regex(/^\d{10,15}$/, "Enter digits only with country code (e.g. 919999999999)"),
+  phone: z.string().regex(/^\d{10,15}$/, "Enter digits only with country code (e.g. 919876543210)"),
   brand: z.string().min(1),
   model: z.string().trim().min(1).max(80),
   year: z.number().int().min(1980).max(new Date().getFullYear() + 1),
@@ -73,13 +74,8 @@ const Sell = () => {
       /* ignore storage errors */
     }
 
-    const detailedMessage = `Hi Sree Sai Vijaya Durga Auto Finance, I want to sell my bike. \nHere are the details:\nName: ${result.data.ownerName}\nPhone: ${result.data.phone}\nBrand: ${result.data.brand}\nModel: ${result.data.model}\nYear: ${result.data.year}\nKM Driven: ${result.data.kmDriven}\nFuel: ${result.data.fuel}\nOwnership: ${result.data.ownership}\nExpected Price: ₹${result.data.expectedPrice}\nLocation: ${result.data.location}\nNotes: ${result.data.notes || "None"}`;
-    
-    // Open whatsapp immediately
-    window.open(whatsappLink(detailedMessage), "_blank");
-
     setSubmitted(true);
-    toast.success("Redirecting you to WhatsApp...");
+    toast.success("Quotation request submitted successfully!");
   };
 
   if (submitted) {
@@ -93,11 +89,9 @@ const Sell = () => {
         <Button
           asChild
           size="lg"
-          className="mt-6 bg-[hsl(142,70%,45%)] text-white hover:bg-[hsl(142,70%,40%)] shadow-elegant"
+          className="mt-6 gradient-primary text-primary-foreground shadow-elegant hover:opacity-90"
         >
-          <a href={whatsappLink(buildSellMessage())} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="mr-2 h-5 w-5" /> Chat with us on WhatsApp
-          </a>
+          <Link to="/">Back to Home</Link>
         </Button>
       </div>
     );
@@ -163,7 +157,7 @@ const Sell = () => {
             <Field
               label="WhatsApp / Phone"
               name="phone"
-              placeholder="919999999999"
+              placeholder="919876543210"
               required
               hint="Digits only, with country code"
             />
@@ -212,7 +206,7 @@ const Sell = () => {
               className="w-full gradient-primary text-primary-foreground shadow-elegant hover:opacity-90 flex items-center justify-center gap-2"
             >
               <MessageCircle className="h-5 w-5" />
-              Send quotations to WhatsApp
+              Send Quotation Request
             </Button>
           </div>
         </form>

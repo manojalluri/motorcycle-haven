@@ -50,9 +50,16 @@ export const Footer = () => (
         <div>
           <h4 className="mb-4 text-sm font-semibold">Contact</h4>
           <ul className="space-y-2 text-sm text-accent-foreground/70">
-            <li>support@sreesaivijayadurga.com</li>
-            <li>+91 99999 99999</li>
-            <li>Mon - Sat, 10am - 7pm</li>
+            <li>
+              <a href="mailto:svdaf2015@gmail.com" className="hover:text-primary transition-colors">svdaf2015@gmail.com</a>
+            </li>
+            <li>
+              <a href="tel:+918297666555" className="hover:text-primary transition-colors">+91 8297666555</a>
+            </li>
+            <li>
+              <a href="tel:+917989179668" className="hover:text-primary transition-colors">+91 7989179668</a>
+            </li>
+            <li>Mon - Sat, 9am - 8pm (Sunday Holiday)</li>
           </ul>
         </div>
       </div>

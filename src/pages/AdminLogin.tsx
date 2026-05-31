@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useBikeStore } from "@/store/bikeStore";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,19 +9,48 @@ import { toast } from "sonner";
 import { Lock } from "lucide-react";
 
 const AdminLogin = () => {
-  const isAdmin = useBikeStore((s) => s.isAdmin);
-  const login = useBikeStore((s) => s.login);
+  const session = useBikeStore((s) => s.session);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
+  const ADMIN_EMAIL = "vnbalusu@gmail.com";
 
-  if (isAdmin) return <Navigate to="/admin/dashboard" replace />;
+  if (session) return <Navigate to="/admin/dashboard" replace />;
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(email.trim(), password)) {
+    if (email.trim().toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+      toast.error("Unauthorized email address.");
+      return;
+    }
+
+    setLoading(true);
+
+    if (isResetMode) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/admin/reset-password`,
+      });
+      setLoading(false);
+      if (!error) {
+        toast.success("Password reset email sent! Check your inbox.");
+        setIsResetMode(false);
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    setLoading(false);
+
+    if (!error) {
       toast.success("Welcome back, admin");
     } else {
-      toast.error("Invalid credentials");
+      toast.error(error.message || "Invalid credentials");
     }
   };
 
@@ -32,8 +62,8 @@ const AdminLogin = () => {
             <Lock className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Admin Login</h1>
-            <p className="text-sm text-muted-foreground">Restricted access</p>
+            <h1 className="text-2xl font-extrabold tracking-tight">Admin {isResetMode ? "Recovery" : "Login"}</h1>
+            <p className="text-sm text-muted-foreground">{isResetMode ? "Reset your password" : "Restricted access"}</p>
           </div>
         </div>
 
@@ -45,33 +75,41 @@ const AdminLogin = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@sreesaivijayadurga.com"
+              placeholder="admin@example.com"
               className="mt-2"
               required
             />
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="mt-2"
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
-            Sign in
+          {!isResetMode && (
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2"
+                required
+              />
+            </div>
+          )}
+          <Button type="submit" disabled={loading} className="w-full gradient-primary text-primary-foreground shadow-elegant hover:opacity-90">
+            {loading ? (isResetMode ? "Sending..." : "Signing in...") : (isResetMode ? "Send Reset Link" : "Sign in")}
           </Button>
+
+          <div className="text-center mt-2">
+            <Button
+              type="button"
+              variant="link"
+              className="text-xs text-muted-foreground"
+              onClick={() => setIsResetMode(!isResetMode)}
+            >
+              {isResetMode ? "Back to Login" : "Forgot Password?"}
+            </Button>
+          </div>
         </form>
 
-        <div className="mt-6 rounded-lg border border-dashed border-border bg-secondary/40 p-3 text-xs text-muted-foreground">
-          <p className="font-semibold text-foreground">Demo credentials</p>
-          <p>Email: <code>admin@sreesaivijayadurga.com</code></p>
-          <p>Password: <code>admin123</code></p>
-        </div>
+
       </div>
     </div>
   );

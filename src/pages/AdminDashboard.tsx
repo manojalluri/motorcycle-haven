@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import { useBikeStore, formatPrice } from "@/store/bikeStore";
 import type { Bike } from "@/data/bikes";
 import { BRANDS, FUEL_TYPES, FuelType } from "@/data/bikes";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,10 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, LogOut, Search, Star, Upload, X } from "lucide-react";
+import {
+  Tabs, TabsContent, TabsList, TabsTrigger,
+} from "@/components/ui/tabs";
+import { Plus, Pencil, Trash2, LogOut, Search, Star, Upload, X, CheckCircle2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const emptyForm: Omit<Bike, "id" | "createdAt"> = {
@@ -42,13 +46,23 @@ const emptyForm: Omit<Bike, "id" | "createdAt"> = {
 };
 
 const AdminDashboard = () => {
-  const { bikes, isAdmin, addBike, updateBike, deleteBike, toggleSold, toggleFeatured, logout } =
+  const { bikes, session, addBike, updateBike, deleteBike, toggleSold, toggleFeatured } =
     useBikeStore();
 
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Bike | null>(null);
   const [openForm, setOpenForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [quotes, setQuotes] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("sreesaivijayadurga-quotes") || "[]");
+      setQuotes(stored);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const filtered = useMemo(
     () =>
@@ -61,7 +75,7 @@ const AdminDashboard = () => {
     [bikes, search]
   );
 
-  if (!isAdmin) return <Navigate to="/admin" replace />;
+  if (!session) return <Navigate to="/admin" replace />;
 
   const openNew = () => {
     setEditing(null);
@@ -104,6 +118,19 @@ const AdminDashboard = () => {
     setOpenForm(false);
   };
 
+  const deleteQuote = (createdAt: number) => {
+    const updated = quotes.filter(q => q.createdAt !== createdAt);
+    setQuotes(updated);
+    localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(updated));
+    toast.success("Quotation deleted");
+  };
+
+  const toggleReviewQuote = (createdAt: number) => {
+    const updated = quotes.map(q => q.createdAt === createdAt ? { ...q, reviewed: !q.reviewed } : q);
+    setQuotes(updated);
+    localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(updated));
+  };
+
   return (
     <div className="container-px mx-auto max-w-7xl py-8 md:py-12">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
@@ -116,7 +143,7 @@ const AdminDashboard = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => { logout(); toast.success("Logged out"); }}>
+          <Button variant="outline" onClick={async () => { await supabase.auth.signOut(); toast.success("Logged out"); }}>
             <LogOut className="mr-1.5 h-4 w-4" /> Logout
           </Button>
           <Dialog open={openForm} onOpenChange={setOpenForm}>
@@ -216,21 +243,30 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex items-center gap-2">
-        <div className="relative max-w-sm flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, brand, location…"
-            className="pl-9"
-          />
-        </div>
-      </div>
+      <Tabs defaultValue="inventory">
+        <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
+          <TabsList>
+            <TabsTrigger value="inventory">Inventory</TabsTrigger>
+            <TabsTrigger value="quotes">
+              Quotations {quotes.length > 0 && <Badge variant="secondary" className="ml-2">{quotes.length}</Badge>}
+            </TabsTrigger>
+          </TabsList>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-        <div className="overflow-x-auto">
-          <Table>
+          <div className="relative max-w-sm flex-1 md:max-w-xs md:ml-auto">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, brand, location…"
+              className="pl-9"
+            />
+          </div>
+        </div>
+
+        <TabsContent value="inventory" className="mt-0">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+            <div className="overflow-x-auto">
+              <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Bike</TableHead>
@@ -325,8 +361,101 @@ const AdminDashboard = () => {
               )}
             </TableBody>
           </Table>
-        </div>
-      </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="quotes" className="mt-0">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Bike Details</TableHead>
+                    <TableHead>Expected Price</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {quotes.map((q, i) => (
+                    <TableRow key={i} className={q.reviewed ? "opacity-60 bg-muted/20" : ""}>
+                      <TableCell>
+                        <p className="font-semibold">{q.ownerName}</p>
+                        <p className="text-xs text-muted-foreground">{q.phone}</p>
+                      </TableCell>
+                      <TableCell>
+                        <p className="font-semibold">{q.brand} {q.model} ({q.year})</p>
+                        <p className="text-xs text-muted-foreground">{q.kmDriven}km · {q.fuel} · {q.ownership}</p>
+                      </TableCell>
+                      <TableCell className="font-semibold">{formatPrice(q.expectedPrice)}</TableCell>
+                      <TableCell>{q.location}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {new Date(q.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title={q.reviewed ? "Mark as unread" : "Mark as reviewed"}
+                            onClick={() => toggleReviewQuote(q.createdAt)}
+                          >
+                            <CheckCircle2 className={`h-4 w-4 ${q.reviewed ? "text-primary" : "text-muted-foreground"}`} />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Contact on WhatsApp"
+                            asChild
+                          >
+                            <a href={`https://wa.me/${q.phone}?text=${encodeURIComponent(`Hi ${q.ownerName}, we are reaching out regarding your quote request for the ${q.brand} ${q.model}.`)}`} target="_blank" rel="noreferrer">
+                              <MessageCircle className="h-4 w-4 text-green-600" />
+                            </a>
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="icon" variant="ghost" title="Delete">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete quotation?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently remove the quote request from {q.ownerName}.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteQuote(q.createdAt)}
+                                  className="bg-destructive hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {quotes.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                        No quotation requests yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

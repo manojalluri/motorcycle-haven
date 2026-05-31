@@ -2,27 +2,24 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Bike, initialBikes } from "@/data/bikes";
 
+import { Session } from "@supabase/supabase-js";
+
 interface BikeStore {
   bikes: Bike[];
-  isAdmin: boolean;
+  session: Session | null;
   addBike: (bike: Omit<Bike, "id" | "createdAt">) => void;
   updateBike: (id: string, bike: Partial<Bike>) => void;
   deleteBike: (id: string) => void;
   toggleSold: (id: string) => void;
   toggleFeatured: (id: string) => void;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  setSession: (session: Session | null) => void;
 }
-
-// Demo credentials (frontend-only): admin@sreesaivijayadurga.com / admin123
-const DEMO_EMAIL = "admin@sreesaivijayadurga.com";
-const DEMO_PASS = "admin123";
 
 export const useBikeStore = create<BikeStore>()(
   persist(
     (set, get) => ({
       bikes: initialBikes,
-      isAdmin: false,
+      session: null,
       addBike: (bike) =>
         set((s) => ({
           bikes: [
@@ -46,18 +43,11 @@ export const useBikeStore = create<BikeStore>()(
             b.id === id ? { ...b, featured: !b.featured } : b
           ),
         })),
-      login: (email, password) => {
-        if (email === DEMO_EMAIL && password === DEMO_PASS) {
-          set({ isAdmin: true });
-          return true;
-        }
-        return false;
-      },
-      logout: () => set({ isAdmin: false }),
+      setSession: (session) => set({ session }),
     }),
     {
       name: "sreesaivijayadurga-store",
-      partialize: (s) => ({ bikes: s.bikes, isAdmin: s.isAdmin }),
+      partialize: (s) => ({ bikes: s.bikes }),
     }
   )
 );

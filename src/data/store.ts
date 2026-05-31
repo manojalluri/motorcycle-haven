@@ -1,10 +1,10 @@
 // Central store contact — Sree Sai Vijaya Durga Auto Finance is the seller for every listing.
 export const STORE = {
   name: "Sree Sai Vijaya Durga Auto Finance",
-  phone: "919999999999", // WhatsApp (digits only, with country code)
-  email: "support@sreesaivijayadurga.com",
+  phone: "918297666555", // WhatsApp (digits only, with country code)
+  email: "svdaf2015@gmail.com",
   address: "Sree Sai Vijaya Durga Auto Finance, Bhimavaram, India",
-  hours: "Mon – Sat, 10am – 7pm",
+  hours: "Mon - Sat, 9am - 8pm (Sunday Holiday)",
 };
 
 export const buildBuyMessage = (bikeName: string) =>

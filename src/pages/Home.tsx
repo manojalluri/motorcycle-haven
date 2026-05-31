@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, ShieldCheck, Zap, BadgeIndianRupee, Phone } from "lucide-react";
 import { useBikeStore } from "@/store/bikeStore";
 import { BikeCard } from "@/components/BikeCard";
-import heroBike from "@/assets/ChatGPT Image Apr 28, 2026, 09_28_59 PM.png";
+import heroBike from "@/assets/ChatGPT Image May 30, 2026, 10_02_06 PM.png";
 
 const trustBadges = [
   { icon: ShieldCheck, label: "100% Verified" },
