@@ -46,7 +46,7 @@ const emptyForm: Omit<Bike, "id" | "createdAt"> = {
 };
 
 const AdminDashboard = () => {
-  const { bikes, session, addBike, updateBike, deleteBike, toggleSold, toggleFeatured } =
+  const { bikes, session, addBike, updateBike, deleteBike, toggleSold, toggleFeatured, fetchBikes } =
     useBikeStore();
 
   const [search, setSearch] = useState("");
@@ -56,13 +56,14 @@ const AdminDashboard = () => {
   const [quotes, setQuotes] = useState<any[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("sreesaivijayadurga-quotes") || "[]");
-      setQuotes(stored);
-    } catch {
-      // ignore
-    }
+    fetchBikes();
+    fetchQuotes();
   }, []);
+
+  const fetchQuotes = async () => {
+    const { data } = await supabase.from("quotations").select("*").order("createdAt", { ascending: false });
+    if (data) setQuotes(data);
+  };
 
   const filtered = useMemo(
     () =>
@@ -118,17 +119,17 @@ const AdminDashboard = () => {
     setOpenForm(false);
   };
 
-  const deleteQuote = (createdAt: number) => {
-    const updated = quotes.filter(q => q.createdAt !== createdAt);
-    setQuotes(updated);
-    localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(updated));
+  const deleteQuote = async (id: string) => {
+    setQuotes((s) => s.filter((q) => q.id !== id));
+    await supabase.from("quotations").delete().eq("id", id);
     toast.success("Quotation deleted");
   };
 
-  const toggleReviewQuote = (createdAt: number) => {
-    const updated = quotes.map(q => q.createdAt === createdAt ? { ...q, reviewed: !q.reviewed } : q);
-    setQuotes(updated);
-    localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(updated));
+  const toggleReviewQuote = async (id: string) => {
+    const quote = quotes.find((q) => q.id === id);
+    if (!quote) return;
+    setQuotes((s) => s.map((q) => (q.id === id ? { ...q, reviewed: !q.reviewed } : q)));
+    await supabase.from("quotations").update({ reviewed: !quote.reviewed }).eq("id", id);
   };
 
   return (
@@ -401,7 +402,7 @@ const AdminDashboard = () => {
                             size="icon"
                             variant="ghost"
                             title={q.reviewed ? "Mark as unread" : "Mark as reviewed"}
-                            onClick={() => toggleReviewQuote(q.createdAt)}
+                            onClick={() => toggleReviewQuote(q.id)}
                           >
                             <CheckCircle2 className={`h-4 w-4 ${q.reviewed ? "text-primary" : "text-muted-foreground"}`} />
                           </Button>
@@ -431,7 +432,7 @@ const AdminDashboard = () => {
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => deleteQuote(q.createdAt)}
+                                  onClick={() => deleteQuote(q.id)}
                                   className="bg-destructive hover:bg-destructive/90"
                                 >
                                   Delete

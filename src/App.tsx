@@ -20,8 +20,11 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const setSession = useBikeStore((s) => s.setSession);
+  const fetchBikes = useBikeStore((s) => s.fetchBikes);
 
   useEffect(() => {
+    fetchBikes();
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -36,7 +39,7 @@ const App = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [setSession]);
+  }, [setSession, fetchBikes]);
 
   return (
     <QueryClientProvider client={queryClient}>

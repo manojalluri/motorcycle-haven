@@ -1,56 +1,102 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import { Bike, initialBikes } from "@/data/bikes";
-
+import { Bike } from "@/data/bikes";
 import { Session } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface BikeStore {
   bikes: Bike[];
   session: Session | null;
-  addBike: (bike: Omit<Bike, "id" | "createdAt">) => void;
-  updateBike: (id: string, bike: Partial<Bike>) => void;
-  deleteBike: (id: string) => void;
-  toggleSold: (id: string) => void;
-  toggleFeatured: (id: string) => void;
+  loading: boolean;
+  fetchBikes: () => Promise<void>;
+  addBike: (bike: Omit<Bike, "id" | "createdAt">) => Promise<void>;
+  updateBike: (id: string, bike: Partial<Bike>) => Promise<void>;
+  deleteBike: (id: string) => Promise<void>;
+  toggleSold: (id: string) => Promise<void>;
+  toggleFeatured: (id: string) => Promise<void>;
   setSession: (session: Session | null) => void;
 }
 
-export const useBikeStore = create<BikeStore>()(
-  persist(
-    (set, get) => ({
-      bikes: initialBikes,
-      session: null,
-      addBike: (bike) =>
-        set((s) => ({
-          bikes: [
-            { ...bike, id: crypto.randomUUID(), createdAt: Date.now() },
-            ...s.bikes,
-          ],
-        })),
-      updateBike: (id, patch) =>
-        set((s) => ({
-          bikes: s.bikes.map((b) => (b.id === id ? { ...b, ...patch } : b)),
-        })),
-      deleteBike: (id) =>
-        set((s) => ({ bikes: s.bikes.filter((b) => b.id !== id) })),
-      toggleSold: (id) =>
-        set((s) => ({
-          bikes: s.bikes.map((b) => (b.id === id ? { ...b, sold: !b.sold } : b)),
-        })),
-      toggleFeatured: (id) =>
-        set((s) => ({
-          bikes: s.bikes.map((b) =>
-            b.id === id ? { ...b, featured: !b.featured } : b
-          ),
-        })),
-      setSession: (session) => set({ session }),
-    }),
-    {
-      name: "sreesaivijayadurga-store",
-      partialize: (s) => ({ bikes: s.bikes }),
+export const useBikeStore = create<BikeStore>((set, get) => ({
+  bikes: [],
+  session: null,
+  loading: false,
+
+  fetchBikes: async () => {
+    set({ loading: true });
+    const { data, error } = await supabase
+      .from("bikes")
+      .select("*")
+      .order("createdAt", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      toast.error("Failed to load bikes");
+    } else {
+      set({ bikes: data as Bike[] });
     }
-  )
-);
+    set({ loading: false });
+  },
+
+  addBike: async (bike) => {
+    const { data, error } = await supabase
+      .from("bikes")
+      .insert([bike])
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      toast.error("Failed to add bike");
+      throw error;
+    }
+
+    set((s) => ({ bikes: [data as Bike, ...s.bikes] }));
+  },
+
+  updateBike: async (id, patch) => {
+    set((s) => ({
+      bikes: s.bikes.map((b) => (b.id === id ? { ...b, ...patch } : b)),
+    }));
+
+    const { error } = await supabase
+      .from("bikes")
+      .update(patch)
+      .eq("id", id);
+
+    if (error) {
+      console.error(error);
+      toast.error("Failed to update bike");
+      get().fetchBikes();
+    }
+  },
+
+  deleteBike: async (id) => {
+    set((s) => ({ bikes: s.bikes.filter((b) => b.id !== id) }));
+
+    const { error } = await supabase.from("bikes").delete().eq("id", id);
+
+    if (error) {
+      console.error(error);
+      toast.error("Failed to delete bike");
+      get().fetchBikes();
+    }
+  },
+
+  toggleSold: async (id) => {
+    const bike = get().bikes.find((b) => b.id === id);
+    if (!bike) return;
+    await get().updateBike(id, { sold: !bike.sold });
+  },
+
+  toggleFeatured: async (id) => {
+    const bike = get().bikes.find((b) => b.id === id);
+    if (!bike) return;
+    await get().updateBike(id, { featured: !bike.featured });
+  },
+
+  setSession: (session) => set({ session }),
+}));
 
 export const formatPrice = (n: number) =>
   new Intl.NumberFormat("en-IN", {

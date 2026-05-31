@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { z } from "zod";
 import { BRANDS, FUEL_TYPES, FuelType } from "@/data/bikes";
 import { STORE, buildSellMessage, whatsappLink } from "@/data/store";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -65,17 +66,31 @@ const Sell = () => {
       return;
     }
 
-    // Frontend-only demo: persist quote requests in localStorage so admins can review later.
-    try {
-      const existing = JSON.parse(localStorage.getItem("sreesaivijayadurga-quotes") || "[]");
-      existing.unshift({ ...result.data, images, createdAt: Date.now() });
-      localStorage.setItem("sreesaivijayadurga-quotes", JSON.stringify(existing));
-    } catch {
-      /* ignore storage errors */
-    }
+    const saveQuote = async () => {
+      const { error } = await supabase.from("quotations").insert([{
+        ownerName: result.data.ownerName,
+        phone: result.data.phone,
+        brand: result.data.brand,
+        model: result.data.model,
+        year: result.data.year,
+        kmDriven: result.data.kmDriven,
+        fuel: result.data.fuel,
+        ownership: result.data.ownership,
+        expectedPrice: result.data.expectedPrice,
+        location: result.data.location,
+        notes: result.data.notes || null,
+        images: images,
+      }]);
 
-    setSubmitted(true);
-    toast.success("Quotation request submitted successfully!");
+      if (error) {
+        console.error(error);
+        toast.error("Failed to submit request. Please try again or contact us via WhatsApp.");
+      } else {
+        setSubmitted(true);
+        toast.success("Quotation request submitted successfully!");
+      }
+    };
+    saveQuote();
   };
 
   if (submitted) {
